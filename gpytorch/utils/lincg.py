@@ -17,6 +17,9 @@ class LinearCG(object):
         self.tolerance_resid = tolerance_resid
 
     def solve(self,A,b,x=None):
+        if b.ndimension() > 1:
+            return self._solve_batch(A,b,x)
+
         if isinstance(A,Variable) or isinstance(b,Variable):
             raise RuntimeError('LinearCG is not intended to operate directly on Variables or be used with autograd.')
 
