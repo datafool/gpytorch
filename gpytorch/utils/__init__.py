@@ -1,6 +1,6 @@
 import logging
 from lbfgs import LBFGS
-
+from lincg import LinearCG
 
 class pd_catcher(object):
     '''
