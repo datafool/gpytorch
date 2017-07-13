@@ -12,7 +12,7 @@ class LinearCG(object):
 
     for positive definite and symmetric matrices A.
     """
-    def __init__(self,max_iter=float('inf'),tolerance_resid=1e-5):
+    def __init__(self,max_iter=15,tolerance_resid=1e-5):
         self.max_iter = max_iter
         self.tolerance_resid = tolerance_resid
 
@@ -54,7 +54,6 @@ class LinearCG(object):
             p = residual + beta*p
             #p.mul_(beta).add_(residual)
             r_sq_old = r_sq_new
-
         return x
 
     def _solve_batch(self,A,B,X=None):

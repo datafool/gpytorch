@@ -1,7 +1,7 @@
 import logging
 from lbfgs import LBFGS
 from lincg import LinearCG
-
+from krylov_logdet import LanczosLogDet
 class pd_catcher(object):
     '''
         A decorator to deal with non-positive definite matrices (useful during optimization)
