@@ -12,7 +12,7 @@ class LinearCG(object):
 
     for positive definite and symmetric matrices A.
     """
-    def __init__(self,max_iter=3,tolerance_resid=1e-5):
+    def __init__(self,max_iter=float('inf'),tolerance_resid=1e-5):
         self.max_iter = max_iter
         self.tolerance_resid = tolerance_resid
 
