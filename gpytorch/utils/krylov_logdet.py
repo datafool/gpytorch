@@ -3,7 +3,7 @@ import pdb
 import math
 
 class LanczosLogDet(object):
-    def __init__(self,maxiter=15,num_random_probes=500):
+    def __init__(self,maxiter=15,num_random_probes=1000):
         self.maxiter = maxiter
         self.num_random_probes = num_random_probes
 
@@ -11,27 +11,43 @@ class LanczosLogDet(object):
         n = len(b)
         num_iters = min(self.maxiter,n)
 
-        Q = torch.zeros(n,num_iters+1)
+        Q = torch.zeros(n,num_iters)
         alpha = torch.zeros(num_iters)
         beta = torch.zeros(num_iters)
 
         b = b/torch.norm(b)
-        u = torch.zeros(n)
-
         Q[:,0] = b
+        u = b
 
-        for k in range(1,num_iters+1):
+        r = A.mv(u)
+        a = u.dot(r)
+        b = r - a*u
+
+        if b.sum() == 0:
+            b = b + 1e-10
+
+        beta[0] = torch.norm(b)
+        alpha[0] = a
+
+
+        for k in range(1,num_iters):
             u,b,alpha_k,beta_k = self._lanczos_step(u,b,A,Q[:,:k])
-            alpha[k-1] = alpha_k
-            beta[k-1] = beta_k
+
+            if b.sum() == 0:
+                b = b + 1e-10
+
+            alpha[k] = alpha_k
+            beta[k] = beta_k
             Q[:,k] = u
 
-            if math.fabs(beta[k-1])<1e-5:
+            if math.fabs(beta[k])<1e-5:
                 break
 
-        beta = beta[1:]
+        alpha = alpha[:k+1]
+        beta = beta[1:k+1]
+        Q = Q[:,:k+1]
         T = torch.diag(alpha) + torch.diag(beta,1) + torch.diag(beta,-1)
-        return Q[:,1:], T
+        return Q, T
 
 
     def _lanczos_step(self,u,v,B,Q):
@@ -51,16 +67,14 @@ class LanczosLogDet(object):
 
         a = u.dot(r)
         v = r - a*u
-        pdb.set_trace()
-
         return u,v,a,norm_v
 
     def logdet(self,A):
         n = len(A)
-        V = torch.randn(n,self.num_random_probes)
+        V = torch.sign(torch.randn(n,self.num_random_probes))
+        V.div_(torch.norm(V,2,0).expand_as(V))
 
         ld = 0
-        pdb.set_trace()
 
         for j in range(self.num_random_probes):
             vj = V[:,j]
@@ -70,7 +84,6 @@ class LanczosLogDet(object):
             # O(n^2) time/convergence with QR iteration,
             # or O(n log n) with fast multipole?
             [f,Y] = T.symeig(eigenvectors=True)
+            ld = ld + n/float(self.num_random_probes) * (Y[0,:].pow(2).dot(f.log_()))
 
-            ld = ld + n/(2.*self.num_random_probes) * (Y[:,0].pow(2).dot(f.log_()))
-
-        return 2*ld
+        return ld
