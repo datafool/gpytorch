@@ -70,6 +70,8 @@ class LanczosLogDet(object):
         return u,v,a,norm_v
 
     def logdet(self,A):
+        return A.potrf().diag().log_().sum() * 2
+
         n = len(A)
         jitter = torch.eye(n) * 1e-5
         A = A + jitter
@@ -85,7 +87,11 @@ class LanczosLogDet(object):
             # Eigendecomposition of a Tridiagonal matrix
             # O(n^2) time/convergence with QR iteration,
             # or O(n log n) with fast multipole?
-            [f,Y] = T.symeig(eigenvectors=True)
+            try:
+                [f,Y] = T.symeig(eigenvectors=True)
+            except err:
+                pdb.set_trace()
+
             ld = ld + n/float(self.num_random_probes) * (Y[0,:].pow(2).dot(f.log_()))
 
         return ld
