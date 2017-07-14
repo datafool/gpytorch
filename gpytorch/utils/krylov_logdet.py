@@ -3,7 +3,7 @@ import pdb
 import math
 
 class LanczosLogDet(object):
-    def __init__(self,maxiter=15,num_random_probes=1000):
+    def __init__(self,maxiter=15,num_random_probes=10):
         self.maxiter = maxiter
         self.num_random_probes = num_random_probes
 
@@ -71,6 +71,8 @@ class LanczosLogDet(object):
 
     def logdet(self,A):
         n = len(A)
+        jitter = torch.eye(n) * 1e-5
+        A = A + jitter
         V = torch.sign(torch.randn(n,self.num_random_probes))
         V.div_(torch.norm(V,2,0).expand_as(V))
 

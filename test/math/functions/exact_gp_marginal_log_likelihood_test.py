@@ -21,7 +21,7 @@ def test_forward():
     covarvar = Variable(covar)
     yvar = Variable(y)
     res = ExactGPMarginalLogLikelihood()(covarvar, yvar)
-    assert(torch.norm(actual - res.data) < 1e-4)
+    assert(all(torch.abs(actual - res.data).div(res.data) < 0.1))
 
 
 def test_backward():

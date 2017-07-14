@@ -17,6 +17,11 @@ class LinearCG(object):
         self.tolerance_resid = tolerance_resid
 
     def solve(self,A,b,x=None):
+        n = len(A)
+        jitter = torch.eye(n) * 1e-5
+        A = A + jitter
+        if A.symeig()[0].min() < 0:
+            pdb.set_trace()
         if b.ndimension() > 1:
             return self._solve_batch(A,b,x)
 
@@ -25,8 +30,6 @@ class LinearCG(object):
 
         if not isinstance(A,torch.Tensor) or not isinstance(b,torch.Tensor):
             raise RuntimeError('LinearCG is intended to operate on tensors.')
-
-        n = len(b)
 
         if x is None:
             x = torch.randn(n)
