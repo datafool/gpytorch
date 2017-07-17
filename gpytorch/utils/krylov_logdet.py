@@ -70,7 +70,7 @@ class LanczosLogDet(object):
         return u,v,a,norm_v
 
     def logdet(self,A):
-        return A.potrf().diag().log_().sum() * 2
+        #return A.potrf().diag().log_().sum() * 2
 
         n = len(A)
         jitter = torch.eye(n) * 1e-5

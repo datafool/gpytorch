@@ -20,6 +20,12 @@ class MLEParameterGroup(ParameterGroup):
             },
         }
 
+    def __repr__(self):
+        string = 'MLEParameterGroup(\n'
+        for name,param in self.named_parameters():
+            string += '\t - ' + name + ' - ' + str(param.data) + '\n'
+        string += ')'
+        return string
 
     def update(self, log_likelihood_closure):
         parameters = list(self.parameters())

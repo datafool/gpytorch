@@ -48,6 +48,8 @@ class Invmm(Function):
         #input_1_var.data = input_1_var.chol_data
         res = super(Invmm, self).__call__(input_1_var, input_2_var)
 
+        if res.ndimension() == 1:
+            res = res.unsqueeze(1)
         # Revert back to original data
         #input_1_var.data = orig_data
         return res
